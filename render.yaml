@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: golden-army-api
+    env: python
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "python roster_api_server.py"
+    plan: free
+    envVars:
+      - key: GOOGLE_APPLICATION_CREDENTIALS
+        value: goldenarmy-dataapi-e8eb6f1f70a7.json

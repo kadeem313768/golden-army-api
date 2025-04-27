@@ -1,0 +1,14 @@
+# 忽略所有JSON金鑰檔案
+*.json
+
+# 忽略Python編譯檔
+__pycache__/
+*.pyc
+
+# 忽略虛擬環境（如果有建立）
+venv/
+env/
+
+# 忽略系統垃圾
+.DS_Store
+Thumbs.db
