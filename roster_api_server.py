@@ -7,7 +7,6 @@ from googleapiclient.discovery import build
 
 app = Flask(__name__)
 
-# 🔥 從環境變數讀取 Service Account
 SERVICE_ACCOUNT_INFO = json.loads(os.getenv('GOOGLE_SERVICE_ACCOUNT_JSON'))
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly']
 
@@ -17,7 +16,6 @@ credentials = service_account.Credentials.from_service_account_info(
 service = build('sheets', 'v4', credentials=credentials)
 sheet = service.spreadsheets()
 
-# 🔥 Google Sheet ID
 SPREADSHEET_ID = '1D_r49hdJLYRm_fWGI-tWVtPEGPA8hM6eIYDC9BaLMlg'
 
 def read_tab(range_name):
