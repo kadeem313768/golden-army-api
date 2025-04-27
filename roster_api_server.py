@@ -1,18 +1,17 @@
-from flask import Flask, jsonify
+from flask import Flask, Response
 import pandas as pd
-import os
 import json
+import os
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 
 app = Flask(__name__)
 
-SERVICE_ACCOUNT_INFO = json.loads(os.getenv('GOOGLE_SERVICE_ACCOUNT_JSON'))
+SERVICE_ACCOUNT_INFO = json.loads(os.getenv('SERVICE_ACCOUNT_JSON'))
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly']
 
 credentials = service_account.Credentials.from_service_account_info(
-    SERVICE_ACCOUNT_INFO, scopes=SCOPES
-)
+    SERVICE_ACCOUNT_INFO, scopes=SCOPES)
 service = build('sheets', 'v4', credentials=credentials)
 sheet = service.spreadsheets()
 
@@ -30,23 +29,21 @@ def read_tab(range_name):
     records = [dict(zip(headers, row)) for row in values[1:]]
     return records
 
+def pretty_json(data):
+    return Response(
+        json.dumps(data, indent=4, ensure_ascii=False),
+        mimetype='application/json'
+    )
+
 @app.route('/roster', methods=['GET'])
 def get_roster():
     data = read_tab('Roster!A1:Z')
-    return app.response_class(
-        response=json.dumps(data, indent=2, ensure_ascii=False),
-        status=200,
-        mimetype='application/json'
-    )
+    return pretty_json(data)
 
 @app.route('/personas', methods=['GET'])
 def get_personas():
     data = read_tab('Personas!A1:Z')
-    return app.response_class(
-        response=json.dumps(data, indent=2, ensure_ascii=False),
-        status=200,
-        mimetype='application/json'
-    )
+    return pretty_json(data)
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000)
