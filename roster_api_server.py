@@ -1,18 +1,23 @@
 from flask import Flask, jsonify
 import pandas as pd
+import os
+import json
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 
 app = Flask(__name__)
 
-SERVICE_ACCOUNT_FILE = 'goldenarmy-dataapi-e8eb6f1f70a7.json'
+# 🔥 從環境變數讀取 Service Account
+SERVICE_ACCOUNT_INFO = json.loads(os.getenv('GOOGLE_SERVICE_ACCOUNT_JSON'))
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly']
 
-credentials = service_account.Credentials.from_service_account_file(
-    SERVICE_ACCOUNT_FILE, scopes=SCOPES)
+credentials = service_account.Credentials.from_service_account_info(
+    SERVICE_ACCOUNT_INFO, scopes=SCOPES
+)
 service = build('sheets', 'v4', credentials=credentials)
 sheet = service.spreadsheets()
 
+# 🔥 Google Sheet ID
 SPREADSHEET_ID = '1D_r49hdJLYRm_fWGI-tWVtPEGPA8hM6eIYDC9BaLMlg'
 
 def read_tab(range_name):
@@ -30,13 +35,20 @@ def read_tab(range_name):
 @app.route('/roster', methods=['GET'])
 def get_roster():
     data = read_tab('Roster!A1:Z')
-    return jsonify(data)
+    return app.response_class(
+        response=json.dumps(data, indent=2, ensure_ascii=False),
+        status=200,
+        mimetype='application/json'
+    )
 
-# Personas
 @app.route('/personas', methods=['GET'])
 def get_personas():
     data = read_tab('Personas!A1:Z')
-    return jsonify(data)
+    return app.response_class(
+        response=json.dumps(data, indent=2, ensure_ascii=False),
+        status=200,
+        mimetype='application/json'
+    )
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000)
